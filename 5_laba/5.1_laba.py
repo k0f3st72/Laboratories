@@ -51,5 +51,5 @@ while True:
             print("Программа завершена!")
             break
     except EOFError:
-        print("\nПрограмма завершена!")
+        print("Программа завершена!")
         break
