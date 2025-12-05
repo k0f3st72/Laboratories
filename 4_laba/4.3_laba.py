@@ -1,6 +1,6 @@
 from function import file_read
 from function import file_write
-filename = '../example.txt'
+filename = '../3_laba/example.txt'
 content = file_write(filename, 'как дела?')
 print(content)
 answer = file_read(filename)

@@ -22,7 +22,7 @@ def file_read(filename):
     except FileNotFoundError:
         return f'Файл {filename} не найден'
 
-filename = '../example.txt'
+filename = 'example.txt'
 text = input('Введите текст для записи в файл: ')
 def file_operations():
     result = write_to_file(filename, text)
