@@ -2,7 +2,7 @@ class UserAccount:
     def __init__(self, username, email ,password):
         self.username = username
         self.email = email
-        self._password = password
+        self.__password = password
 
     def strong_password(self, password):
         if len(password) < 6:
@@ -10,10 +10,16 @@ class UserAccount:
         return password
 
     def set_password(self, new_password):
-        self._password = new_password
+        self.__password = new_password
 
     def check_password(self, replay_password):
-        return self._password == replay_password
+        return self.__password == replay_password
+
+    def get_password_mask(self):
+        return "*" * len(self.__password)
+
+    def get_password_for_debug(self):
+        return self.__password
 
 username = input('Введите ник: ')
 email = input('Введите почту: ')
@@ -54,4 +60,15 @@ else:
 
 print(f'Ник: {user.username}')
 print(f'Почта: {user.email}')
-print(f'Пароль: {user._password}')
+print(f'Скрытый Пароль: {user.get_password_mask()}')
+
+while True:
+    try:
+        visible_password = input('Если вы хотите увидеть ващ пароль напишите (да/нет): ')
+        if visible_password != 'да':
+            break
+        else:
+            print(f'Видимый пароль: {user.get_password_for_debug()}')
+            break
+    except (EOFError):
+        print("Ошибка: вы ввели аббракадабру")
