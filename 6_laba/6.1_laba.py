@@ -2,7 +2,7 @@ class UserAccount:
     def __init__(self, username, email ,password):
         self.username = username
         self.email = email
-        self.password = password
+        self._password = password
 
     def strong_password(self, password):
         if len(password) < 6:
@@ -10,10 +10,10 @@ class UserAccount:
         return password
 
     def set_password(self, new_password):
-        self.password = new_password
+        self._password = new_password
 
     def check_password(self, replay_password):
-        return self.password == replay_password
+        return self._password == replay_password
 
 username = input('Введите ник: ')
 email = input('Введите почту: ')
@@ -54,4 +54,4 @@ else:
 
 print(f'Ник: {user.username}')
 print(f'Почта: {user.email}')
-print(f'Пароль: {user.password}')
+print(f'Пароль: {user._password}')
