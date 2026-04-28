@@ -19,7 +19,7 @@ class ChatMessage(BaseModel):
     text: str
     user: Optional[str] = None
     to: Optional[str] = None
-    ts: Optional[str] = None
+    time: Optional[str] = None
 
     @field_validator("text")
     @classmethod
@@ -31,8 +31,8 @@ class ChatMessage(BaseModel):
         return v.strip()
 
 
-def get_timestamp() -> str:
-    return datetime.now().isoformat()
+def get_time() -> str:
+    return datetime.now().strftime("%d.%m.%Y %H:%M")
 
 
 async def send_system_message(websocket: WebSocket, message: str, online_count: int):
@@ -40,7 +40,7 @@ async def send_system_message(websocket: WebSocket, message: str, online_count: 
         "type": "system",
         "text": message,
         "online": online_count,
-        "ts": get_timestamp()
+        "time": get_time()
     }
     await websocket.send_text(json.dumps(system_msg, ensure_ascii=False))
 
@@ -51,7 +51,7 @@ async def broadcast_system_message(message: str, exclude_user: Optional[str] = N
         "type": "system",
         "text": message,
         "online": online_count,
-        "ts": get_timestamp()
+        "time": get_time()
     }
 
     for username, connection in active_connections.items():
@@ -81,7 +81,7 @@ async def send_private_message(from_user: str, to_user: str, text: str):
             error_msg = {
                 "type": "error",
                 "detail": f"User '{to_user}' is not online",
-                "ts": get_timestamp()
+                "time": get_time()
             }
             await active_connections[from_user].send_text(json.dumps(error_msg, ensure_ascii=False))
         return False
@@ -92,7 +92,7 @@ async def send_private_message(from_user: str, to_user: str, text: str):
         "from": from_user,
         "to": to_user,
         "text": text,
-        "ts": get_timestamp(),
+        "time": get_time(),
         "online": len(active_connections)
     }
 
@@ -104,7 +104,7 @@ async def send_private_message(from_user: str, to_user: str, text: str):
             "type": "private_sent",
             "to": to_user,
             "text": text,
-            "ts": get_timestamp()
+            "time": get_time()
         }
         await active_connections[from_user].send_text(json.dumps(confirm_msg, ensure_ascii=False))
 
@@ -168,14 +168,14 @@ async def websocket_endpoint(
                             error_msg = {
                                 "type": "error",
                                 "detail": "Invalid command format. Use: /w username message",
-                                "ts": get_timestamp()
+                                "time": get_time()
                             }
                             await websocket.send_text(json.dumps(error_msg, ensure_ascii=False))
                     else:
                         error_msg = {
                             "type": "error",
                             "detail": f"Unknown command: {command_text}",
-                            "ts": get_timestamp()
+                            "time": get_time()
                         }
                         await websocket.send_text(json.dumps(error_msg, ensure_ascii=False))
                     continue
@@ -188,7 +188,7 @@ async def websocket_endpoint(
                     "type": "message",
                     "user": username,
                     "text": validated_msg.text,
-                    "ts": get_timestamp()
+                    "time": get_time()
                 }
 
                 # Рассылаем всем
@@ -199,7 +199,7 @@ async def websocket_endpoint(
                 error_msg = {
                     "type": "error",
                     "detail": "Invalid JSON format",
-                    "ts": get_timestamp()
+                    "time": get_time()
                 }
                 await websocket.send_text(json.dumps(error_msg, ensure_ascii=False))
 
@@ -208,7 +208,7 @@ async def websocket_endpoint(
                 error_msg = {
                     "type": "error",
                     "detail": str(e.errors()[0].get("msg", "Validation error")),
-                    "ts": get_timestamp()
+                    "time": get_time()
                 }
                 await websocket.send_text(json.dumps(error_msg, ensure_ascii=False))
 
