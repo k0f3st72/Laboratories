@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>WebSocket Chat</title>
+    <title>WebSocket Чат</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,12 +11,10 @@
             padding: 20px;
             background-color: #333333;
         }
-
         h1 {
             color: #999;
             text-align: center;
         }
-
         #login {
             background: #87CEFA;
             padding: 20px;
@@ -24,7 +22,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-
         #chat {
             background: #87CEFA;
             padding: 20px;
@@ -32,43 +29,35 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: none;
         }
-
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
         input, button {
             padding: 10px;
             margin: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-
         input {
             flex: 1;
-            margin-right: 10px;
         }
-
         button {
             background-color: #007bff;
             color: white;
             cursor: pointer;
             border: none;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
-        .input-group {
-            display: flex;
-            margin-bottom: 10px;
-        }
-
         #messages {
             list-style: none;
             padding: 0;
             margin-top: 20px;
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
         }
-
         #messages li {
             padding: 10px;
             margin: 5px 0;
@@ -76,26 +65,22 @@
             border-radius: 4px;
             border-left: 3px solid #007bff;
         }
-
         #messages li.system {
             background: #e9ecef;
             border-left-color: #6c757d;
             color: #495057;
             font-style: italic;
         }
-
         #messages li.error {
             background: #f8d7da;
             border-left-color: #dc3545;
             color: #721c24;
         }
-
         #messages li.private {
             background: #d1ecf1;
             border-left-color: #17a2b8;
             color: #0c5460;
         }
-
         #onlineCounter {
             background: #28a745;
             color: white;
@@ -105,7 +90,6 @@
             margin-bottom: 10px;
             font-size: 14px;
         }
-
         .info {
             font-size: 12px;
             color: #6c757d;
@@ -120,7 +104,7 @@
     <div id="login">
         <h3>Вход в чат</h3>
         <div class="input-group">
-            <input type="text" id="username" placeholder="Введите имя пользователя" />
+            <input type="text" id="username" placeholder="Введите имя пользователя">
             <button onclick="connect()">Подключиться</button>
         </div>
         <div class="info">Имя должно быть от 1 до 50 символов</div>
@@ -133,7 +117,7 @@
         </div>
 
         <div class="input-group">
-            <input type="text" id="messageInput" autocomplete="off" placeholder="Введите сообщение... (/w username сообщение для приватного чата)" />
+            <input type="text" id="messageInput" autocomplete="off" placeholder="Введите сообщение... (/w username сообщение для приватного чата)">
             <button onclick="sendMessage()">📤 Отправить</button>
         </div>
 
@@ -166,7 +150,6 @@
                 document.getElementById("login").style.display = "none";
                 document.getElementById("chat").style.display = "block";
                 document.getElementById("currentUser").textContent = username;
-                addMessage("system", "✅ Подключение установлено...");
             };
 
             ws.onmessage = function(event) {
@@ -180,31 +163,25 @@
                                 updateOnlineCount(data.online);
                             }
                             break;
-
                         case "message":
-                            addMessage("message", `${data.user}: ${data.text}`);
+                            addMessage("message", data.user + ": " + data.text);
                             if (data.online !== undefined) {
                                 updateOnlineCount(data.online);
                             }
                             break;
-
                         case "private":
-                            addMessage("private", `🔒 [Приватно от ${data.from}]: ${data.text}`);
+                            addMessage("private", "🔒 [Приватно от " + data.from + "]: " + data.text);
                             break;
-
                         case "private_sent":
-                            addMessage("private", `🔒 [Приватно для ${data.to}]: ${data.text} (отправлено)`);
+                            addMessage("private", "🔒 [Приватно для " + data.to + "]: " + data.text + " (отправлено)");
                             break;
-
                         case "error":
-                            addMessage("error", `❌ Ошибка: ${data.detail}`);
+                            addMessage("error", "❌ Ошибка: " + data.detail);
                             break;
-
                         default:
                             addMessage("message", event.data);
                     }
                 } catch(e) {
-                    // Если не JSON, выводим как есть
                     addMessage("message", event.data);
                 }
             };
@@ -217,7 +194,7 @@
             ws.onclose = function(event) {
                 let message = "🔌 Соединение закрыто";
                 if (event.code === 1008) {
-                    message = `❌ Ошибка: ${event.reason || "Имя пользователя уже занято"}`;
+                    message = "❌ Ошибка: " + (event.reason || "Имя пользователя уже занято");
                 }
                 addMessage("system", message);
                 document.getElementById("login").style.display = "block";
@@ -237,20 +214,16 @@
 
             if (!text) return;
 
-            // Проверяем, является ли сообщение командой приватного чата
             if (text.startsWith("/w ")) {
-                const message = {
+                ws.send(JSON.stringify({
                     type: "command",
                     text: text
-                };
-                ws.send(JSON.stringify(message));
+                }));
             } else {
-                // Отправляем обычное сообщение
-                const message = {
+                ws.send(JSON.stringify({
                     type: "message",
                     text: text
-                };
-                ws.send(JSON.stringify(message));
+                }));
             }
 
             input.value = '';
@@ -272,28 +245,21 @@
 
             messages.appendChild(message);
             message.scrollIntoView({ behavior: "smooth", block: "end" });
-
-            // Ограничиваем количество сообщений в чате (опционально)
-            while (messages.children.length > 100) {
-                messages.removeChild(messages.firstChild);
-            }
         }
 
         function updateOnlineCount(count) {
             const counter = document.getElementById("onlineCounter");
             if (counter) {
-                counter.textContent = `👥 Онлайн: ${count}`;
+                counter.textContent = "👥 Онлайн: " + count;
             }
         }
 
-        // Отправка по Enter
         document.addEventListener("keypress", function(e) {
             if (e.key === "Enter" && document.getElementById("chat").style.display === "block") {
                 sendMessage();
             }
         });
 
-        // Фокус на поле ввода при загрузке
         document.getElementById("username").focus();
     </script>
 </body>
