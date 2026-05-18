@@ -30,5 +30,3 @@ vector = np.array([10, 20, 30, 40])
 result3 = matrix + vector
 print("Сумма: ", result3)
 print("Сумма: ", result3.shape)
-
-
